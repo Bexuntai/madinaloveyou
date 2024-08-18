@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Собери пазл с изображением и узнай, как я тебя люблю!">
+    <title>Собери Пазл</title>
     <style>
         body {
             margin: 0;
@@ -12,6 +14,7 @@
             align-items: center;
             background: linear-gradient(135deg, #f9c2d0, #fcb8d2, #e68a9e);
             font-family: 'Dancing Script', cursive;
+            overflow: hidden; /* Убирает скролл, если он появляется из-за изменения размеров */
         }
         #content {
             text-align: center;
@@ -22,10 +25,10 @@
             color: #ffffff;
             border: none;
             border-radius: 30px;
-            font-size: 28px;
+            font-size: 24px; /* Уменьшено для лучшего отображения на мобильных устройствах */
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             transition: transform 0.2s ease, background 0.3s ease;
         }
@@ -36,30 +39,23 @@
         #puzzle {
             display: none;
             margin: auto;
-            display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 2px;
-            padding: 2px;
-            background: rgba(255, 255, 255, 0.8);
+            gap: 5px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            width: 80vw; /* Максимальная ширина пазла */
-            max-width: 600px; /* Максимальная ширина пазла для больших экранов */
-            height: auto; /* Высота будет вычисляться автоматически */
-            aspect-ratio: 3 / 4; /* Соотношение сторон для вертикальной фотографии */
+            width: 90vw;
+            aspect-ratio: 1 / 1; /* Поддержка квадратного формата пазла */
         }
         .piece {
-            background-size: cover; /* Плитка будет обрезана по размеру */
+            background-size: cover;
             cursor: pointer;
             border: 2px solid #fff;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: border-color 0.3s;
-            touch-action: none;
-            aspect-ratio: 1; /* Соотношение сторон плитки 1:1 */
-            width: 100%; /* Плитка занимает 100% ширины своей ячейки */
-            height: 100%; /* Плитка занимает 100% высоты своей ячейки */
         }
         .piece:hover {
             border-color: #ff6584;
@@ -69,7 +65,7 @@
             margin-top: 20px;
             font-size: 36px;
             color: #ff6584;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             transform: perspective(500px) rotateX(0deg);
             transition: transform 1s ease-in-out, opacity 1s ease-in-out;
             opacity: 0;
@@ -81,12 +77,11 @@
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-    <title>Собери Пазл</title>
 </head>
 <body>
 
 <div id="content">
-    <button id="startButton" onclick="startPuzzle()">Сейчас мы будем собирать самую красивую девушку на свете</button>
+    <button id="startButton" onclick="startPuzzle()">Собери пазл и узнай, как я тебя люблю!</button>
     <div id="puzzle"></div>
     <div id="loveMessage">Я люблю тебя больше всего на свете!</div>
 </div>
@@ -99,23 +94,17 @@
         puzzle.style.display = 'grid';
         
         const pieces = [
-            { backgroundImage: 'url(tile_1.jpg)' },
-            { backgroundImage: 'url(tile_2.jpg)' },
-            { backgroundImage: 'url(tile_3.jpg)' },
-            { backgroundImage: 'url(tile_4.jpg)' },
-            { backgroundImage: 'url(tile_5.jpg)' },
-            { backgroundImage: 'url(tile_6.jpg)' },
-            { backgroundImage: 'url(tile_7.jpg)' },
-            { backgroundImage: 'url(tile_8.jpg)' },
-            { backgroundImage: 'url(tile_9.jpg)' }
+            'url(tile_1.jpg)', 'url(tile_2.jpg)', 'url(tile_3.jpg)',
+            'url(tile_4.jpg)', 'url(tile_5.jpg)', 'url(tile_6.jpg)',
+            'url(tile_7.jpg)', 'url(tile_8.jpg)', 'url(tile_9.jpg)'
         ];
 
         pieces.sort(() => Math.random() - 0.5);  // Перемешивание частей
 
-        pieces.forEach((piece, index) => {
+        pieces.forEach((backgroundImage, index) => {
             const tile = document.createElement('div');
             tile.classList.add('piece');
-            tile.style.backgroundImage = piece.backgroundImage;
+            tile.style.backgroundImage = backgroundImage;
             tile.dataset.index = index;
             puzzle.appendChild(tile);
 
