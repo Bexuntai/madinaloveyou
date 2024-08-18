@@ -44,7 +44,8 @@
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             width: 90vw; /* Максимальная ширина пазла */
-            height: 120vw; /* Максимальная высота пазла с учетом вертикальной ориентации */
+            height: auto; /* Высота будет зависеть от соотношения сторон */
+            aspect-ratio: 1 / 1; /* Соотношение сторон 1:1 */
         }
         .piece {
             background-size: 100% 100%; /* Соответствие размерам плитки */
@@ -54,6 +55,9 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: border-color 0.3s;
             touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .piece:hover {
             border-color: #ff6584;
@@ -159,6 +163,7 @@
         });
 
         let selectedPiece = null;
+        let isPuzzleCompleted = false;
 
         function swapPiece(index1, index2) {
             if (index2 < 0 || index2 >= pieces.length) return;
@@ -178,6 +183,8 @@
         }
 
         function checkWin() {
+            if (isPuzzleCompleted) return; // Если пазл уже собран, ничего не делаем
+            
             let isWin = true;
             puzzle.querySelectorAll('.piece').forEach((piece, index) => {
                 if (parseInt(piece.dataset.index) !== index) {
@@ -186,10 +193,32 @@
             });
 
             if (isWin) {
+                isPuzzleCompleted = true;
                 const loveMessage = document.getElementById('loveMessage');
                 loveMessage.classList.add('show');
+                puzzle.removeEventListener('click', handlePieceClick); // Отключение обработчика кликов
             }
         }
+
+        function handlePieceClick(e) {
+            if (e.target.classList.contains('piece') && !isPuzzleCompleted) {
+                if (!selectedPiece) {
+                    selectedPiece = e.target;
+                    selectedPiece.style.border = '2px solid #ff6584';
+                } else {
+                    const temp = selectedPiece.style.backgroundImage;
+                    selectedPiece.style.backgroundImage = e.target.style.backgroundImage;
+                    e.target.style.backgroundImage = temp;
+
+                    selectedPiece.style.border = '2px solid #fff';
+                    selectedPiece = null;
+
+                    checkWin();
+                }
+            }
+        }
+
+        puzzle.addEventListener('click', handlePieceClick);
     }
 </script>
 
