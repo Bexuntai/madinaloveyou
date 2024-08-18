@@ -36,28 +36,30 @@
         #puzzle {
             display: none;
             margin: auto;
+            display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 5px;
-            padding: 10px;
+            gap: 2px;
+            padding: 2px;
             background: rgba(255, 255, 255, 0.8);
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            width: 90vw; /* Максимальная ширина пазла */
-            height: auto; /* Высота будет зависеть от соотношения сторон */
-            aspect-ratio: 1 / 1; /* Соотношение сторон 1:1 */
+            width: 80vw; /* Максимальная ширина пазла */
+            max-width: 600px; /* Максимальная ширина пазла для больших экранов */
+            height: auto; /* Высота будет вычисляться автоматически */
+            aspect-ratio: 3 / 4; /* Соотношение сторон для вертикальной фотографии */
         }
         .piece {
-            background-size: 100% 100%; /* Соответствие размерам плитки */
+            background-size: cover; /* Плитка будет обрезана по размеру */
             cursor: pointer;
             border: 2px solid #fff;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: border-color 0.3s;
             touch-action: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            aspect-ratio: 1; /* Соотношение сторон плитки 1:1 */
+            width: 100%; /* Плитка занимает 100% ширины своей ячейки */
+            height: 100%; /* Плитка занимает 100% высоты своей ячейки */
         }
         .piece:hover {
             border-color: #ff6584;
@@ -163,7 +165,6 @@
         });
 
         let selectedPiece = null;
-        let isPuzzleCompleted = false;
 
         function swapPiece(index1, index2) {
             if (index2 < 0 || index2 >= pieces.length) return;
@@ -183,8 +184,6 @@
         }
 
         function checkWin() {
-            if (isPuzzleCompleted) return; // Если пазл уже собран, ничего не делаем
-            
             let isWin = true;
             puzzle.querySelectorAll('.piece').forEach((piece, index) => {
                 if (parseInt(piece.dataset.index) !== index) {
@@ -193,32 +192,10 @@
             });
 
             if (isWin) {
-                isPuzzleCompleted = true;
                 const loveMessage = document.getElementById('loveMessage');
                 loveMessage.classList.add('show');
-                puzzle.removeEventListener('click', handlePieceClick); // Отключение обработчика кликов
             }
         }
-
-        function handlePieceClick(e) {
-            if (e.target.classList.contains('piece') && !isPuzzleCompleted) {
-                if (!selectedPiece) {
-                    selectedPiece = e.target;
-                    selectedPiece.style.border = '2px solid #ff6584';
-                } else {
-                    const temp = selectedPiece.style.backgroundImage;
-                    selectedPiece.style.backgroundImage = e.target.style.backgroundImage;
-                    e.target.style.backgroundImage = temp;
-
-                    selectedPiece.style.border = '2px solid #fff';
-                    selectedPiece = null;
-
-                    checkWin();
-                }
-            }
-        }
-
-        puzzle.addEventListener('click', handlePieceClick);
     }
 </script>
 
