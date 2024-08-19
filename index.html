@@ -91,7 +91,7 @@
         document.getElementById('startButton').style.display = 'none';
 
         const puzzle = document.getElementById('puzzle');
-        puzzle.style.display = 'grid';
+        puzzle.style.display = 'grid'; // Убедитесь, что пазл становится видимым
 
         const pieces = [
             'images/tile_1.jpg', 'images/tile_2.jpg', 'images/tile_3.jpg',
@@ -130,4 +130,62 @@
 
             tile.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
-               
+                startY = e.touches[0].clientY;
+            });
+
+            tile.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // Отключаем прокрутку страницы при свайпе
+                endX = e.touches[0].clientX;
+                endY = e.touches[0].clientY;
+            });
+
+            tile.addEventListener('touchend', () => {
+                const diffX = endX - startX;
+                const diffY = endY - startY;
+
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (diffX > 0) swapPiece(index, index + 1); // свайп вправо
+                    else swapPiece(index, index - 1); // свайп влево
+                } else {
+                    if (diffY > 0) swapPiece(index, index + 3); // свайп вниз
+                    else swapPiece(index, index - 3); // свайп вверх
+                }
+            });
+        });
+
+        function swapPiece(index1, index2) {
+            if (index2 < 0 || index2 >= pieces.length) return;
+            
+            const tile1 = puzzle.children[index1];
+            const tile2 = puzzle.children[index2];
+
+            const temp = tile1.style.backgroundImage;
+            tile1.style.backgroundImage = tile2.style.backgroundImage;
+            tile2.style.backgroundImage = temp;
+
+            const tempIndex = tile1.dataset.index;
+            tile1.dataset.index = tile2.dataset.index;
+            tile2.dataset.index = tempIndex;
+
+            checkWin();
+        }
+
+        function checkWin() {
+            let isWin = true;
+            puzzle.querySelectorAll('.piece').forEach((piece, index) => {
+                if (parseInt(piece.dataset.index) !== index) {
+                    isWin = false;
+                }
+            });
+
+            if (isWin) {
+                const loveMessage = document.getElementById('loveMessage');
+                loveMessage.classList.add('show');
+                setTimeout(() => alert('Пазл собран!'), 500); // Добавлено уведомление
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
