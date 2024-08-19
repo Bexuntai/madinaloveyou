@@ -41,28 +41,22 @@
         #puzzle {
             display: none;
             margin: auto;
-            position: relative;
-            overflow: hidden;
-            width: 721px; /* Ширина контейнера пазла */
-            height: 1280px; /* Высота контейнера пазла */
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.8);
+            width: 90vw; /* Адаптивная ширина */
+            max-width: 720px; /* Максимальная ширина */
+            aspect-ratio: 3 / 4;
+            display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
             gap: 0;
-            display: grid;
         }
         .piece {
             background-size: cover;
             cursor: pointer;
+            width: 100%;
+            aspect-ratio: 1 / 1.78;
             border: 1px solid #fff;
-            border-radius: 0;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-            transition: border-color 0.3s;
-            touch-action: none;
-            width: 240px; /* Ширина плитки */
-            height: 426.67px; /* Высота плитки */
+            background-color: #f0f0f0;
         }
         .piece:hover {
             border-color: #ff6584;
@@ -95,17 +89,17 @@
 <script>
     function startPuzzle() {
         document.getElementById('startButton').style.display = 'none';
-        
+
         const puzzle = document.getElementById('puzzle');
         puzzle.style.display = 'grid';
-        
+
         const pieces = [
-            'tile_1.jpg', 'tile_2.jpg', 'tile_3.jpg',
-            'tile_4.jpg', 'tile_5.jpg', 'tile_6.jpg',
-            'tile_7.jpg', 'tile_8.jpg', 'tile_9.jpg'
+            'images/tile_1.jpg', 'images/tile_2.jpg', 'images/tile_3.jpg',
+            'images/tile_4.jpg', 'images/tile_5.jpg', 'images/tile_6.jpg',
+            'images/tile_7.jpg', 'images/tile_8.jpg', 'images/tile_9.jpg'
         ];
 
-        pieces.sort(() => Math.random() - 0.5);  // Перемешивание частей
+        pieces.sort(() => Math.random() - 0.5);
 
         pieces.forEach((src, index) => {
             const tile = document.createElement('div');
@@ -114,7 +108,8 @@
             tile.dataset.index = index;
             puzzle.appendChild(tile);
 
-            // Обработка кликов мышью
+            let selectedPiece = null;
+
             tile.addEventListener('click', () => {
                 if (selectedPiece === null) {
                     selectedPiece = tile;
@@ -131,68 +126,8 @@
                 }
             });
 
-            // Добавляем обработку свайпов для плиток
             let startX, startY, endX, endY;
 
             tile.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-            });
-
-            tile.addEventListener('touchmove', (e) => {
-                e.preventDefault(); // Отключаем прокрутку страницы при свайпе
-                endX = e.touches[0].clientX;
-                endY = e.touches[0].clientY;
-            });
-
-            tile.addEventListener('touchend', () => {
-                const diffX = endX - startX;
-                const diffY = endY - startY;
-
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (diffX > 0) swapPiece(index, index + 1); // свайп вправо
-                    else swapPiece(index, index - 1); // свайп влево
-                } else {
-                    if (diffY > 0) swapPiece(index, index + 3); // свайп вниз
-                    else swapPiece(index, index - 3); // свайп вверх
-                }
-            });
-        });
-
-        let selectedPiece = null;
-
-        function swapPiece(index1, index2) {
-            if (index2 < 0 || index2 >= pieces.length) return;
-            
-            const tile1 = puzzle.children[index1];
-            const tile2 = puzzle.children[index2];
-
-            const temp = tile1.style.backgroundImage;
-            tile1.style.backgroundImage = tile2.style.backgroundImage;
-            tile2.style.backgroundImage = temp;
-
-            const tempIndex = tile1.dataset.index;
-            tile1.dataset.index = tile2.dataset.index;
-            tile2.dataset.index = tempIndex;
-
-            checkWin();
-        }
-
-        function checkWin() {
-            let isWin = true;
-            puzzle.querySelectorAll('.piece').forEach((piece, index) => {
-                if (parseInt(piece.dataset.index) !== index) {
-                    isWin = false;
-                }
-            });
-
-            if (isWin) {
-                const loveMessage = document.getElementById('loveMessage');
-                loveMessage.classList.add('show');
-            }
-        }
-    }
-</script>
-
-</body>
-</html>
+               
