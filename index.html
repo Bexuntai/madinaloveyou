@@ -39,6 +39,15 @@
             transform: translateY(-3px);
             background: #ff4a6e;
         }
+        #initialMessage {
+            display: block;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-size: 24px;
+            color: #333;
+        }
         #puzzle {
             display: none;
             margin: auto;
@@ -56,13 +65,8 @@
             animation: fadeIn 1s ease forwards;
         }
         .piece {
-            background-color: #ff6584;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #ffffff;
-            font-size: 24px;
-            font-weight: bold;
+            background-size: cover;
+            background-position: center;
             cursor: pointer;
             width: 100%;
             aspect-ratio: 1 / 1.78;
@@ -149,7 +153,10 @@
 <body>
 
 <div id="content">
-    <button id="startButton" onclick="startPuzzle()">Собери пазл и узнай, как я тебя люблю!</button>
+    <div id="initialMessage">
+        <p>Привет! Готов собрать пазл и узнать, как я тебя люблю?</p>
+        <button id="startButton" onclick="startPuzzle()">Начать</button>
+    </div>
     <div id="puzzle"></div>
     <div id="loveMessage" class="letter-container">
         <div class="letter">
@@ -165,24 +172,24 @@
 
 <script>
     function startPuzzle() {
-        const startButton = document.getElementById('startButton');
+        const initialMessage = document.getElementById('initialMessage');
         const puzzle = document.getElementById('puzzle');
 
-        startButton.style.display = 'none';
+        initialMessage.style.display = 'none';
         puzzle.style.display = 'grid';
 
         const pieces = [
-            '1', '2', '3',
-            '4', '5', '6',
-            '7', '8', '9'
+            'tile_1.jpg', 'tile_2.jpg', 'tile_3.jpg',
+            'tile_4.jpg', 'tile_5.jpg', 'tile_6.jpg',
+            'tile_7.jpg', 'tile_8.jpg', 'tile_9.jpg'
         ];
 
         pieces.sort(() => Math.random() - 0.5);
 
-        pieces.forEach((number, index) => {
+        pieces.forEach((src, index) => {
             const tile = document.createElement('div');
             tile.classList.add('piece');
-            tile.textContent = number;
+            tile.style.backgroundImage = `url(${src})`;
             tile.dataset.index = index;
             puzzle.appendChild(tile);
 
@@ -193,9 +200,9 @@
                     selectedPiece = tile;
                     selectedPiece.style.border = '2px solid #ff6584';
                 } else {
-                    const tempText = selectedPiece.textContent;
-                    selectedPiece.textContent = tile.textContent;
-                    tile.textContent = tempText;
+                    const tempImage = selectedPiece.style.backgroundImage;
+                    selectedPiece.style.backgroundImage = tile.style.backgroundImage;
+                    tile.style.backgroundImage = tempImage;
 
                     selectedPiece.style.border = '2px solid #fff';
                     selectedPiece = null;
@@ -208,7 +215,7 @@
         function checkWin() {
             let isWin = true;
             puzzle.querySelectorAll('.piece').forEach((piece, index) => {
-                if (parseInt(piece.textContent) - 1 !== index) {
+                if (parseInt(piece.dataset.index) !== index) {
                     isWin = false;
                 }
             });
