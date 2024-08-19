@@ -8,6 +8,7 @@
     <style>
         body {
             margin: 0;
+            padding: 0;
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -43,20 +44,24 @@
             margin: auto;
             width: 90vw; /* Адаптивная ширина */
             max-width: 720px; /* Максимальная ширина */
-            aspect-ratio: 3 / 4;
+            aspect-ratio: 3 / 4; /* Поддержка соотношения сторон 3:4 */
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
             gap: 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.9);
         }
         .piece {
             background-size: cover;
+            background-position: center;
             cursor: pointer;
             width: 100%;
             aspect-ratio: 1 / 1.78;
             border: 1px solid #fff;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-            background-color: #f0f0f0;
+            transition: border-color 0.3s;
         }
         .piece:hover {
             border-color: #ff6584;
@@ -91,16 +96,18 @@
         document.getElementById('startButton').style.display = 'none';
 
         const puzzle = document.getElementById('puzzle');
-        puzzle.style.display = 'grid'; // Убедитесь, что пазл становится видимым
+        puzzle.style.display = 'grid';
 
         const pieces = [
-            'images/tile_1.jpg', 'images/tile_2.jpg', 'images/tile_3.jpg',
-            'images/tile_4.jpg', 'images/tile_5.jpg', 'images/tile_6.jpg',
-            'images/tile_7.jpg', 'images/tile_8.jpg', 'images/tile_9.jpg'
+            'tile_1.jpg', 'tile_2.jpg', 'tile_3.jpg',
+            'tile_4.jpg', 'tile_5.jpg', 'tile_6.jpg',
+            'tile_7.jpg', 'tile_8.jpg', 'tile_9.jpg'
         ];
 
+        // Перемешивание частей
         pieces.sort(() => Math.random() - 0.5);
 
+        // Добавление плиток в пазл
         pieces.forEach((src, index) => {
             const tile = document.createElement('div');
             tile.classList.add('piece');
@@ -115,6 +122,7 @@
                     selectedPiece = tile;
                     selectedPiece.style.border = '1px solid #ff6584';
                 } else {
+                    // Меняем местами изображения
                     const temp = selectedPiece.style.backgroundImage;
                     selectedPiece.style.backgroundImage = tile.style.backgroundImage;
                     tile.style.backgroundImage = temp;
@@ -126,6 +134,7 @@
                 }
             });
 
+            // Обработка свайпов для плиток
             let startX, startY, endX, endY;
 
             tile.addEventListener('touchstart', (e) => {
@@ -144,21 +153,22 @@
                 const diffY = endY - startY;
 
                 if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (diffX > 0) swapPiece(index, index + 1); // свайп вправо
-                    else swapPiece(index, index - 1); // свайп влево
+                    if (diffX > 0) swapPiece(index, index + 1); // Свайп вправо
+                    else swapPiece(index, index - 1); // Свайп влево
                 } else {
-                    if (diffY > 0) swapPiece(index, index + 3); // свайп вниз
-                    else swapPiece(index, index - 3); // свайп вверх
+                    if (diffY > 0) swapPiece(index, index + 3); // Свайп вниз
+                    else swapPiece(index, index - 3); // Свайп вверх
                 }
             });
         });
 
         function swapPiece(index1, index2) {
             if (index2 < 0 || index2 >= pieces.length) return;
-            
+
             const tile1 = puzzle.children[index1];
             const tile2 = puzzle.children[index2];
 
+            // Меняем местами изображения
             const temp = tile1.style.backgroundImage;
             tile1.style.backgroundImage = tile2.style.backgroundImage;
             tile2.style.backgroundImage = temp;
@@ -181,7 +191,6 @@
             if (isWin) {
                 const loveMessage = document.getElementById('loveMessage');
                 loveMessage.classList.add('show');
-                setTimeout(() => alert('Пазл собран!'), 500); // Добавлено уведомление
             }
         }
     }
