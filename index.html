@@ -42,44 +42,107 @@
         #puzzle {
             display: none;
             margin: auto;
-            width: 90vw; /* Адаптивная ширина */
-            max-width: 720px; /* Максимальная ширина */
-            aspect-ratio: 3 / 4; /* Поддержка соотношения сторон 3:4 */
+            width: 90vw;
+            max-width: 720px;
+            aspect-ratio: 3 / 4;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 0;
-            border-radius: 10px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-            background-color: rgba(255, 255, 255, 0.9);
+            gap: 5px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            animation: fadeIn 1s ease forwards;
         }
         .piece {
-            background-size: cover;
-            background-position: center;
+            background-color: #ff6584;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
             cursor: pointer;
             width: 100%;
             aspect-ratio: 1 / 1.78;
-            border: 1px solid #fff;
+            border: 2px solid #fff;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, transform 0.2s ease;
+            border-radius: 10px;
         }
         .piece:hover {
-            border-color: #ff6584;
+            border-color: #ff4a6e;
+            transform: scale(1.05);
         }
         #loveMessage {
             display: none;
             margin-top: 20px;
-            font-size: 28px;
-            color: #ff6584;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            transform: perspective(500px) rotateX(0deg);
-            transition: transform 1s ease-in-out, opacity 1s ease-in-out;
             opacity: 0;
+            transition: opacity 1s ease, transform 1s ease;
+            transform: translateY(20px);
         }
         #loveMessage.show {
             display: block;
-            transform: perspective(500px) rotateX(360deg);
             opacity: 1;
+            transform: translateY(0);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes revealLetter {
+            from { opacity: 0; transform: translateY(50px) rotateX(-90deg); }
+            to { opacity: 1; transform: translateY(0) rotateX(0); }
+        }
+        @keyframes writeText {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        .letter-container {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            animation: revealLetter 2s ease forwards;
+        }
+        .letter {
+            background: url('https://www.publicdomainpictures.net/pictures/270000/velka/parchment-paper.jpg');
+            background-size: cover;
+            border: 2px solid #d4a373;
+            border-radius: 10px;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            font-family: 'Great Vibes', cursive;
+            font-size: 24px;
+            color: #333;
+            text-align: left;
+            line-height: 1.6;
+            animation: revealLetter 1.5s ease-in-out;
+        }
+        .feather-pen {
+            position: absolute;
+            right: -30px;
+            bottom: -20px;
+            width: 60px;
+            height: auto;
+            transform: rotate(-10deg);
+            opacity: 0;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        .letter-text {
+            overflow: hidden;
+            white-space: nowrap;
+            display: inline-block;
+            width: 0;
+            animation: writeText 5s steps(50, end) forwards;
+        }
+        .letter.show .feather-pen {
+            opacity: 1;
+            transform: rotate(0);
         }
     </style>
 </head>
@@ -88,30 +151,38 @@
 <div id="content">
     <button id="startButton" onclick="startPuzzle()">Собери пазл и узнай, как я тебя люблю!</button>
     <div id="puzzle"></div>
-    <div id="loveMessage">Я люблю тебя больше всего на свете!</div>
+    <div id="loveMessage" class="letter-container">
+        <div class="letter">
+            <div class="letter-text">
+                Моя любовь к тебе не знает границ. Ты освещаешь каждый мой день, как яркое солнце.
+                Поздравляю тебя с завершением этого пазла, как символа наших общих усилий.
+                Пусть каждый кусочек нашей жизни, как и этот пазл, всегда складывается в картину полного счастья.
+                Я люблю тебя больше всего на свете, и пусть эта любовь будет вечной.
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
     function startPuzzle() {
-        document.getElementById('startButton').style.display = 'none';
-
+        const startButton = document.getElementById('startButton');
         const puzzle = document.getElementById('puzzle');
+
+        startButton.style.display = 'none';
         puzzle.style.display = 'grid';
 
         const pieces = [
-            'tile_1.jpg', 'tile_2.jpg', 'tile_3.jpg',
-            'tile_4.jpg', 'tile_5.jpg', 'tile_6.jpg',
-            'tile_7.jpg', 'tile_8.jpg', 'tile_9.jpg'
+            '1', '2', '3',
+            '4', '5', '6',
+            '7', '8', '9'
         ];
 
-        // Перемешивание частей
         pieces.sort(() => Math.random() - 0.5);
 
-        // Добавление плиток в пазл
-        pieces.forEach((src, index) => {
+        pieces.forEach((number, index) => {
             const tile = document.createElement('div');
             tile.classList.add('piece');
-            tile.style.backgroundImage = `url(${src})`;
+            tile.textContent = number;
             tile.dataset.index = index;
             puzzle.appendChild(tile);
 
@@ -120,70 +191,24 @@
             tile.addEventListener('click', () => {
                 if (selectedPiece === null) {
                     selectedPiece = tile;
-                    selectedPiece.style.border = '1px solid #ff6584';
+                    selectedPiece.style.border = '2px solid #ff6584';
                 } else {
-                    // Меняем местами изображения
-                    const temp = selectedPiece.style.backgroundImage;
-                    selectedPiece.style.backgroundImage = tile.style.backgroundImage;
-                    tile.style.backgroundImage = temp;
+                    const tempText = selectedPiece.textContent;
+                    selectedPiece.textContent = tile.textContent;
+                    tile.textContent = tempText;
 
-                    selectedPiece.style.border = '1px solid #fff';
+                    selectedPiece.style.border = '2px solid #fff';
                     selectedPiece = null;
 
                     checkWin();
                 }
             });
-
-            // Обработка свайпов для плиток
-            let startX, startY, endX, endY;
-
-            tile.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-            });
-
-            tile.addEventListener('touchmove', (e) => {
-                e.preventDefault(); // Отключаем прокрутку страницы при свайпе
-                endX = e.touches[0].clientX;
-                endY = e.touches[0].clientY;
-            });
-
-            tile.addEventListener('touchend', () => {
-                const diffX = endX - startX;
-                const diffY = endY - startY;
-
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (diffX > 0) swapPiece(index, index + 1); // Свайп вправо
-                    else swapPiece(index, index - 1); // Свайп влево
-                } else {
-                    if (diffY > 0) swapPiece(index, index + 3); // Свайп вниз
-                    else swapPiece(index, index - 3); // Свайп вверх
-                }
-            });
         });
-
-        function swapPiece(index1, index2) {
-            if (index2 < 0 || index2 >= pieces.length) return;
-
-            const tile1 = puzzle.children[index1];
-            const tile2 = puzzle.children[index2];
-
-            // Меняем местами изображения
-            const temp = tile1.style.backgroundImage;
-            tile1.style.backgroundImage = tile2.style.backgroundImage;
-            tile2.style.backgroundImage = temp;
-
-            const tempIndex = tile1.dataset.index;
-            tile1.dataset.index = tile2.dataset.index;
-            tile2.dataset.index = tempIndex;
-
-            checkWin();
-        }
 
         function checkWin() {
             let isWin = true;
             puzzle.querySelectorAll('.piece').forEach((piece, index) => {
-                if (parseInt(piece.dataset.index) !== index) {
+                if (parseInt(piece.textContent) - 1 !== index) {
                     isWin = false;
                 }
             });
@@ -191,6 +216,7 @@
             if (isWin) {
                 const loveMessage = document.getElementById('loveMessage');
                 loveMessage.classList.add('show');
+                loveMessage.style.display = 'flex';
             }
         }
     }
