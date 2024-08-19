@@ -155,10 +155,10 @@
 <div id="content">
     <div id="initialMessage">
         <p>Привет! Готов собрать пазл и узнать, как я тебя люблю?</p>
-        <button id="startButton" onclick="startPuzzle()">Начать</button>
+        <button id="startButton" onclick="showPuzzle()">Начать</button>
     </div>
-    <div id="puzzle"></div>
-    <div id="loveMessage" class="letter-container">
+    <div id="puzzle" class="hidden"></div>
+    <div id="loveMessage" class="letter-container hidden">
         <div class="letter">
             <div class="letter-text">
                 Моя любовь к тебе не знает границ. Ты освещаешь каждый мой день, как яркое солнце.
@@ -171,11 +171,14 @@
 </div>
 
 <script>
-    function startPuzzle() {
-        const initialMessage = document.getElementById('initialMessage');
-        const puzzle = document.getElementById('puzzle');
+    function showPuzzle() {
+        document.getElementById('initialMessage').classList.add('hidden');
+        document.getElementById('puzzle').classList.remove('hidden');
+        startPuzzle();
+    }
 
-        initialMessage.style.display = 'none';
+    function startPuzzle() {
+        const puzzle = document.getElementById('puzzle');
         puzzle.style.display = 'grid';
 
         const pieces = [
@@ -211,20 +214,21 @@
                 }
             });
         });
+    }
 
-        function checkWin() {
-            let isWin = true;
-            puzzle.querySelectorAll('.piece').forEach((piece, index) => {
-                if (parseInt(piece.dataset.index) !== index) {
-                    isWin = false;
-                }
-            });
-
-            if (isWin) {
-                const loveMessage = document.getElementById('loveMessage');
-                loveMessage.classList.add('show');
-                loveMessage.style.display = 'flex';
+    function checkWin() {
+        let isWin = true;
+        document.querySelectorAll('.piece').forEach((piece, index) => {
+            if (parseInt(piece.dataset.index) !== index) {
+                isWin = false;
             }
+        });
+
+        if (isWin) {
+            document.getElementById('puzzle').classList.add('hidden');
+            const loveMessage = document.getElementById('loveMessage');
+            loveMessage.classList.remove('hidden');
+            loveMessage.classList.add('show');
         }
     }
 </script>
