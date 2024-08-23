@@ -72,13 +72,11 @@
             aspect-ratio: 1 / 1.78;
             border: 2px solid #fff;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
             transition: border-color 0.3s, transform 0.2s ease;
-        }
-        .piece.selected {
-            border-color: #ff6584;
+            border-radius: 10px;
         }
         .piece:hover {
+            border-color: #ff4a6e;
             transform: scale(1.05);
         }
         #loveMessage {
@@ -97,21 +95,6 @@
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
-        @keyframes revealLetter {
-            from { opacity: 0; transform: translateY(50px) rotateX(-90deg); }
-            to { opacity: 1; transform: translateY(0) rotateX(0); }
-        }
-        @keyframes writeText {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-        .letter-container {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            animation: revealLetter 2s ease forwards;
-        }
         .letter {
             background: url('https://www.publicdomainpictures.net/pictures/270000/velka/parchment-paper.jpg');
             background-size: cover;
@@ -127,31 +110,7 @@
             color: #333;
             text-align: left;
             line-height: 1.6;
-            animation: revealLetter 1.5s ease-in-out;
-        }
-        .feather-pen {
-            position: absolute;
-            right: -30px;
-            bottom: -20px;
-            width: 60px;
-            height: auto;
-            transform: rotate(-10deg);
-            opacity: 0;
-            transition: opacity 1s ease, transform 1s ease;
-        }
-        .letter-text {
-            overflow: hidden;
-            white-space: nowrap;
-            display: inline-block;
-            width: 0;
-            animation: writeText 5s steps(50, end) forwards;
-        }
-        .letter.show .feather-pen {
-            opacity: 1;
-            transform: rotate(0);
-        }
-        .hidden {
-            display: none;
+            animation: fadeIn 1s ease;
         }
     </style>
 </head>
@@ -159,48 +118,40 @@
 
 <div id="content">
     <div id="initialMessage">
-        <p>Привет! Готов собрать пазл и узнать, как я тебя люблю?</p>
-        <button id="startButton" onclick="showPuzzle()">Мы сегодня будем собирать самую красивую девушку в этой вселенной</button>
+        <p>Мы сегодня будем собирать самую красивую девушку в этой вселенной</p>
+        <button id="startButton" onclick="showPuzzle()">Начать</button>
     </div>
-    <div id="puzzle" class="hidden"></div>
-    <div id="loveMessage" class="letter-container hidden">
-        <div class="letter">
-            <div class="letter-text">
-                Моя любимая, твоя душевность и заботливость для меня бесценны. Ты обладаешь редким даром: приносить тепло и свет в мою жизнь, просто будучи собой. В тебе столько силы и благородства, что каждый миг рядом с тобой — это счастье. Твоя нежность и доблесть вдохновляют меня, и я благодарен за то, что могу разделять с тобой все радости и трудности. Ты — тот человек, с кем я хочу быть всегда, и с каждым днём моя любовь к тебе только крепнет.
-            </div>
-        </div>
+    <div id="puzzle"></div>
+    <div id="loveMessage" class="letter">
+        Моя любимая, твоя душевность и заботливость для меня бесценны. Ты обладаешь редким даром: приносить тепло и свет в мою жизнь, просто будучи собой. В тебе столько силы и благородства, что каждый миг рядом с тобой — это счастье. Твоя нежность и доблесть вдохновляют меня, и я благодарен за то, что могу разделять с тобой все радости и трудности. Ты — тот человек, с кем я хочу быть всегда, и с каждым днём моя любовь к тебе только крепнет.
     </div>
 </div>
 
 <script>
-    let selectedPiece = null;
-
     function showPuzzle() {
-        document.getElementById('initialMessage').classList.add('hidden');
-        document.getElementById('puzzle').classList.remove('hidden');
+        document.getElementById('initialMessage').style.display = 'none';
+        document.getElementById('puzzle').style.display = 'grid';
         startPuzzle();
     }
 
     function startPuzzle() {
         const puzzle = document.getElementById('puzzle');
-        puzzle.style.display = 'grid';
+        puzzle.innerHTML = ''; // Очистить содержимое пазла
 
-        // Define the correct order of pieces
-        const correctOrder = [
+        const pieces = [
             'tile_1.jpg', 'tile_2.jpg', 'tile_3.jpg',
             'tile_4.jpg', 'tile_5.jpg', 'tile_6.jpg',
             'tile_7.jpg', 'tile_8.jpg', 'tile_9.jpg'
         ];
 
-        // Shuffle the pieces
-        const shuffledPieces = shuffleArray(correctOrder.slice());
+        const shuffledPieces = shuffleArray(pieces.slice()); // Случайно перемешиваем плитки
 
         shuffledPieces.forEach((src, index) => {
             const tile = document.createElement('div');
             tile.classList.add('piece');
             tile.style.backgroundImage = `url(${src})`;
             tile.dataset.index = index;
-            tile.dataset.originalIndex = correctOrder.indexOf(src);  // Store the original index
+            tile.dataset.correctIndex = pieces.indexOf(src); // Запоминаем исходный индекс
             puzzle.appendChild(tile);
 
             tile.addEventListener('click', () => {
@@ -210,41 +161,37 @@
     }
 
     function handleTileClick(tile) {
-        if (selectedPiece === null) {
-            selectedPiece = tile;
-            selectedPiece.classList.add('selected');
-        } else {
-            // Swap the images of the selected tile and the current tile
+        const selectedPiece = document.querySelector('.piece.selected');
+        if (selectedPiece) {
+            // Меняем местами плитки
             const tempImage = selectedPiece.style.backgroundImage;
             selectedPiece.style.backgroundImage = tile.style.backgroundImage;
             tile.style.backgroundImage = tempImage;
 
-            // Swap the dataset indices
+            // Меняем индексы
             const tempIndex = selectedPiece.dataset.index;
             selectedPiece.dataset.index = tile.dataset.index;
             tile.dataset.index = tempIndex;
 
-            // Deselect the previously selected tile
             selectedPiece.classList.remove('selected');
-            selectedPiece = null;
-
             checkWin();
+        } else {
+            tile.classList.add('selected');
         }
     }
 
     function checkWin() {
         let isWin = true;
         document.querySelectorAll('.piece').forEach((piece, index) => {
-            if (parseInt(piece.dataset.index) !== index) {
+            if (parseInt(piece.dataset.index) !== piece.dataset.correctIndex) {
                 isWin = false;
             }
         });
 
         if (isWin) {
-            document.getElementById('puzzle').classList.add('hidden');
-            const loveMessage = document.getElementById('loveMessage');
-            loveMessage.classList.remove('hidden');
-            loveMessage.classList.add('show');
+            document.getElementById('puzzle').style.display = 'none';
+            document.getElementById('initialMessage').style.display = 'none';
+            document.getElementById('loveMessage').style.display = 'block';
         }
     }
 
