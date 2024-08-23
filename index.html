@@ -110,7 +110,6 @@
             color: #333;
             text-align: left;
             line-height: 1.6;
-            animation: fadeIn 1s ease;
         }
     </style>
 </head>
@@ -118,16 +117,24 @@
 
 <div id="content">
     <div id="initialMessage">
-        <p>Мы сегодня будем собирать самую красивую девушку в этой вселенной</p>
+        <p>Привет! Готов собрать пазл и узнать, как я тебя люблю?</p>
         <button id="startButton" onclick="showPuzzle()">Начать</button>
     </div>
     <div id="puzzle"></div>
     <div id="loveMessage" class="letter">
-        Моя любимая, твоя душевность и заботливость для меня бесценны. Ты обладаешь редким даром: приносить тепло и свет в мою жизнь, просто будучи собой. В тебе столько силы и благородства, что каждый миг рядом с тобой — это счастье. Твоя нежность и доблесть вдохновляют меня, и я благодарен за то, что могу разделять с тобой все радости и трудности. Ты — тот человек, с кем я хочу быть всегда, и с каждым днём моя любовь к тебе только крепнет.
+        <div>
+            Моя любимая, твоя душевность и заботливость для меня бесценны. Ты обладаешь редким даром: приносить тепло и свет в мою жизнь, просто будучи собой. В тебе столько силы и благородства, что каждый миг рядом с тобой — это счастье. Твоя нежность и доблесть вдохновляют меня, и я благодарен за то, что могу разделять с тобой все радости и трудности. Ты — тот человек, с кем я хочу быть всегда, и с каждым днём моя любовь к тебе только крепнет.
+        </div>
     </div>
 </div>
 
 <script>
+    const initialImages = [
+        'tile_1.jpg', 'tile_2.jpg', 'tile_3.jpg',
+        'tile_4.jpg', 'tile_5.jpg', 'tile_6.jpg',
+        'tile_7.jpg', 'tile_8.jpg', 'tile_9.jpg'
+    ];
+
     function showPuzzle() {
         document.getElementById('initialMessage').style.display = 'none';
         document.getElementById('puzzle').style.display = 'grid';
@@ -136,71 +143,56 @@
 
     function startPuzzle() {
         const puzzle = document.getElementById('puzzle');
-        puzzle.innerHTML = ''; // Очистить содержимое пазла
+        puzzle.innerHTML = ''; // Очистка старого содержимого
 
-        const pieces = [
-            'tile_1.jpg', 'tile_2.jpg', 'tile_3.jpg',
-            'tile_4.jpg', 'tile_5.jpg', 'tile_6.jpg',
-            'tile_7.jpg', 'tile_8.jpg', 'tile_9.jpg'
-        ];
+        // Копирование и перемешивание плиток
+        const pieces = [...initialImages];
+        pieces.sort(() => Math.random() - 0.5);
 
-        const shuffledPieces = shuffleArray(pieces.slice()); // Случайно перемешиваем плитки
-
-        shuffledPieces.forEach((src, index) => {
+        pieces.forEach((src, index) => {
             const tile = document.createElement('div');
             tile.classList.add('piece');
             tile.style.backgroundImage = `url(${src})`;
             tile.dataset.index = index;
-            tile.dataset.correctIndex = pieces.indexOf(src); // Запоминаем исходный индекс
             puzzle.appendChild(tile);
 
+            let selectedPiece = null;
+
             tile.addEventListener('click', () => {
-                handleTileClick(tile);
+                if (selectedPiece === null) {
+                    selectedPiece = tile;
+                    selectedPiece.style.border = '2px solid #ff6584';
+                } else {
+                    const tempImage = selectedPiece.style.backgroundImage;
+                    selectedPiece.style.backgroundImage = tile.style.backgroundImage;
+                    tile.style.backgroundImage = tempImage;
+
+                    selectedPiece.style.border = '2px solid #fff';
+                    selectedPiece = null;
+
+                    checkWin();
+                }
             });
         });
     }
 
-    function handleTileClick(tile) {
-        const selectedPiece = document.querySelector('.piece.selected');
-        if (selectedPiece) {
-            // Меняем местами плитки
-            const tempImage = selectedPiece.style.backgroundImage;
-            selectedPiece.style.backgroundImage = tile.style.backgroundImage;
-            tile.style.backgroundImage = tempImage;
-
-            // Меняем индексы
-            const tempIndex = selectedPiece.dataset.index;
-            selectedPiece.dataset.index = tile.dataset.index;
-            tile.dataset.index = tempIndex;
-
-            selectedPiece.classList.remove('selected');
-            checkWin();
-        } else {
-            tile.classList.add('selected');
-        }
-    }
-
     function checkWin() {
+        const pieces = Array.from(document.querySelectorAll('.piece'));
+        const correctImages = initialImages;
+
         let isWin = true;
-        document.querySelectorAll('.piece').forEach((piece, index) => {
-            if (parseInt(piece.dataset.index) !== piece.dataset.correctIndex) {
+
+        pieces.forEach((piece, index) => {
+            const img = piece.style.backgroundImage.split('/').pop().replace('")', '');
+            if (correctImages[index] !== img) {
                 isWin = false;
             }
         });
 
         if (isWin) {
             document.getElementById('puzzle').style.display = 'none';
-            document.getElementById('initialMessage').style.display = 'none';
-            document.getElementById('loveMessage').style.display = 'block';
+            document.getElementById('loveMessage').classList.add('show');
         }
-    }
-
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
     }
 </script>
 
